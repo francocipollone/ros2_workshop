@@ -46,7 +46,7 @@ class ControlRobot(Node):
 
     def pose_to_pose2d(self, pose: Pose) -> Pose2D:
         """
-        Convert a `Pose` message to a `Pose2D` message.
+        Convertir un mensaje `Pose` a mensaje `Pose2D`.
         """
         pose2d = Pose2D()
         pose2d.x = pose.position.x

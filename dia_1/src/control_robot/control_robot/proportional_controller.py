@@ -19,7 +19,7 @@ class ProportionalController:
         Computa la velocidad a aplicar al robot para alcanzar el objetivo.
         """
         velocity = self._get_zero_velocity()
-        if self._is_at_goal_position(current_pose, goal_pose):
+        if self.is_at_goal_position(current_pose, goal_pose):
             return velocity
 
         velocity.linear.x = self._compute_linear_speed_to_goal(
@@ -41,12 +41,12 @@ class ProportionalController:
         velocity.angular.z = 0.0
         return velocity
 
-    def _is_at_goal_position(self, current_pose: Pose2D,
+    def is_at_goal_position(self, current_pose: Pose2D,
                              goal_pose: Pose2D) -> bool:
         """
         Devuelve `true` si el robot se encuentra en la posición objetivo.
         """
-        return self.compute_euclidean_distance_to_goal(
+        return self._compute_euclidean_distance_to_goal(
             current_pose,
             goal_pose) < self.k_euclidean_distance_to_goal_tolerance
 
@@ -55,10 +55,10 @@ class ProportionalController:
         """
         Computa la componente lineal de la velocidad hacia el objetivo.
         """
-        return self.k_linear_speed_constant * self.compute_euclidean_distance_to_goal(
+        return self.k_linear_speed_constant * self._compute_euclidean_distance_to_goal(
             current_pose, goal_pose)
 
-    def compute_euclidean_distance_to_goal(self, current_pose: Pose2D,
+    def _compute_euclidean_distance_to_goal(self, current_pose: Pose2D,
                                            goal_pose: Pose2D) -> float:
         """
         Computa la distancia euclideana (en línea recta) hacia el objetivo

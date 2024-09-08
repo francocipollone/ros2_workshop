@@ -22,57 +22,41 @@ class ControlRobot(Node):
         self.velocity_pub_ = self.create_publisher(Twist, '/cmd_vel', 10)
 
         # Subscriber for /odom
-        self.odometry_sub_ = self.create_subscription(
-            Odometry, '/odom', self.odometry_callback, 10
-        )
+        self.odometry_sub_ = self.create_subscription(Odometry, '/odom',
+                                                      self.odometry_callback,
+                                                      10)
 
         # Action server
-        self._action_server = ActionServer(
+        self.action_server_ = ActionServer(
             self,
             ToPose2D,
             'pose_control',
-            execute_callback=self.execute_callback,
+            # Callback a ser llamado para procesar el goal despues que es aceptado
+            execute_callback=self.execute_action,
+            # Callback a ser llamado cuando se recibe un goal.
             goal_callback=self.goal_callback,
+            # Callback a ser llamado cuando un goal es aceptado y antes de llamar al execute_callback
             handle_accepted_callback=self.handle_accepted_callback,
+            # Callback a ser llamado cuando se recibe un cancel request.
             cancel_callback=self.cancel_callback,
         )
 
         self.proportional_controller_ = ProportionalController()
 
+        self.robot_odom_ = Odometry()
         # Attributes to store the current goal and feedback
-        self._goal_pose = None
-        self._current_goal_handle = None
-        self._goal_active = False
+        self.goal_pose_ = None
+        self.goal_active_ = False
+
+    def destroy(self):
+        self.action_server_.destroy()
+        super().destroy_node()
 
     def odometry_callback(self, msg: Odometry):
         """
-        Callback for /odom topic. Converts Pose to Pose2D and computes velocity.
+        Callback for /odom topic
         """
-        if not self._goal_active:
-            return
-
-        current_pose = self.pose_to_pose2d(msg.pose.pose)
-        distance_to_goal = self.compute_distance(current_pose, self._goal_pose)
-
-        # Publish feedback (distance to the goal)
-        feedback_msg = ToPose2D.Feedback()
-        feedback_msg.distance_to_goal = distance_to_goal
-        self._current_goal_handle.publish_feedback(feedback_msg)
-
-        # If we are close to the goal, complete the goal
-        if distance_to_goal < 0.1:  # Threshold for reaching the goal
-            result = ToPose2D.Result()
-            result.result_pose = current_pose
-            self._current_goal_handle.succeed()
-            self._goal_active = False
-            self.get_logger().info('Goal reached!')
-            return
-
-        # Compute and publish velocity towards the goal
-        velocity = self.proportional_controller_.compute_velocity_towards_goal(
-            current_pose, self._goal_pose
-        )
-        self.velocity_pub_.publish(velocity)
+        self.robot_odom_ = msg
 
     def goal_callback(self, goal_request):
         """
@@ -85,9 +69,9 @@ class ControlRobot(Node):
         """
         Accept the goal and start processing.
         """
-        self._goal_active = True
-        self._current_goal_handle = goal_handle
-        self._goal_pose = goal_handle.request.target_pose
+        self.goal_active_ = True
+        self.goal_achieved_ = False
+        self.goal_pose_ = goal_handle.request.target_pose
         goal_handle.execute()
 
     def cancel_callback(self, goal_handle):
@@ -95,45 +79,79 @@ class ControlRobot(Node):
         Handle cancellation of a goal.
         """
         self.get_logger().info('Received goal cancel request')
-        self._goal_active = False
+        self.goal_active_ = False
         return CancelResponse.ACCEPT
 
-    async def execute_callback(self, goal_handle):
+    async def execute_action(self, goal_handle):
         """
         Execution callback to handle the control logic.
         """
         self.get_logger().info('Executing goal...')
         # Wait for the goal to finish or be canceled
-        while self._goal_active:
+
+        feedback_msg = ToPose2D.Feedback()
+        while self.goal_active_ and rclpy.ok():
+            current_pose = self.pose_to_pose2d(self.robot_odom_.pose.pose)
+
+            # Calcular la velocidad a aplicar al robot para alcanzar el objetivo
+            velocity = self.proportional_controller_.compute_velocity_towards_goal(
+                current_pose, self.goal_pose_)
+            self.velocity_pub_.publish(velocity)
+
+            # Calcular la distancia al objetivo para publicar en el feedback
+            distance_to_goal = self.compute_euclidean_distance_to_goal(
+                current_pose, self.goal_pose_)
+            feedback_msg.distance_to_goal = distance_to_goal
+            feedback_msg.current_pose = current_pose
+            goal_handle.publish_feedback(feedback_msg)
+
+            # Once the goal is achieved, break the loop
+            if self.proportional_controller_.is_at_goal_position(
+                    current_pose, self.goal_pose_):
+                self.goal_achieved_ = True
+                self.get_logger().info('Goal achieved')
+                break
+
             rclpy.spin_once(self, timeout_sec=1)
 
-        # Once the goal is complete, return the result
+        if goal_handle.is_cancel_requested:
+            goal_handle.canceled()
+            self.get_logger().info('Goal canceled')
+            self.velocity_pub_.publish(Twist())
+            return ToPose2D.Result()
+
+        # Once the goal is completed return the result
         result = ToPose2D.Result()
-        result.target_pose = self._goal_pose
+        result.target_pose = self.pose_to_pose2d(self.robot_odom_.pose.pose)
         goal_handle.succeed()
+        self.get_logger().info('Goal succeeded')
         return result
 
     def pose_to_pose2d(self, pose: Pose) -> Pose2D:
         """
-        Convert Pose to Pose2D.
+        Convertir un mensaje `Pose` a mensaje `Pose2D`.
         """
         pose2d = Pose2D()
         pose2d.x = pose.position.x
         pose2d.y = pose.position.y
+
+        # Extract yaw from quaternion orientation
         orientation_q = pose.orientation
-        _, _, yaw = euler_from_quaternion(
-            [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
-        )
+        (_, _, yaw) = euler_from_quaternion([
+            orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w
+        ])
         pose2d.theta = yaw
+
         return pose2d
 
-    def compute_distance(self, current_pose: Pose2D, goal_pose: Pose2D) -> float:
+    def compute_euclidean_distance_to_goal(self, current_pose: Pose2D,
+                                           goal_pose: Pose2D) -> float:
         """
-        Compute Euclidean distance between current pose and goal.
+        Computa la distancia euclideana (en línea recta) hacia el objetivo
         """
-        return math.sqrt(
-            (goal_pose.x - current_pose.x)**2 + (goal_pose.y - current_pose.y)**2
-        )
+        delta_x = goal_pose.x - current_pose.x
+        delta_y = goal_pose.y - current_pose.y
+        return math.sqrt(delta_x**2 + delta_y**2)
 
 
 def main(args=None):
@@ -147,8 +165,8 @@ def main(args=None):
     except KeyboardInterrupt:
         control_robot.get_logger().info('Action server shutting down')
     finally:
-        control_robot.destroy_node()
-        rclpy.shutdown()
+        control_robot.destroy()
+        rclpy.try_shutdown()
 
 
 if __name__ == '__main__':
