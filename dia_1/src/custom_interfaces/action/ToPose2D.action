@@ -1,0 +1,8 @@
+# Defino el objetivo (goal)
+geometry_msgs/Pose2D target_pose
+---
+# Defino el resultado (result)
+geometry_msgs/Pose2D target_pose
+---
+# Defino la realimentacion (feedback)
+float32 distance_to_goal

@@ -23,6 +23,7 @@ ros-humble-andino-bringup
 ros-humble-andino-slam
 ros-humble-nav2-bringup
 ros-humble-nav2-common
+ros-humble-tf-transformations
 software-properties-common
 sudo
 tmux
