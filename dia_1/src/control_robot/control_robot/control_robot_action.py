@@ -7,10 +7,11 @@ from .proportional_controller import ProportionalController  # Assuming you have
 from action_msgs.msg import GoalStatus
 from custom_interfaces.action import ToPose2D  # Import the custom action
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
+from rclpy.executors import MultiThreadedExecutor
 import math
 
 
-class ControlRobot(Node):
+class ControlRobotAction(Node):
     """
     ROS 2 Action server that controls a robot in closed-loop using odometry and proportional control.
     """
@@ -70,7 +71,6 @@ class ControlRobot(Node):
         Accept the goal and start processing.
         """
         self.goal_active_ = True
-        self.goal_achieved_ = False
         self.goal_pose_ = goal_handle.request.target_pose
         goal_handle.execute()
 
@@ -90,6 +90,7 @@ class ControlRobot(Node):
         # Wait for the goal to finish or be canceled
 
         feedback_msg = ToPose2D.Feedback()
+        rate = self.create_rate(15)
         while self.goal_active_ and rclpy.ok():
             current_pose = self.pose_to_pose2d(self.robot_odom_.pose.pose)
 
@@ -108,11 +109,10 @@ class ControlRobot(Node):
             # Once the goal is achieved, break the loop
             if self.proportional_controller_.is_at_goal_position(
                     current_pose, self.goal_pose_):
-                self.goal_achieved_ = True
                 self.get_logger().info('Goal achieved')
                 break
 
-            rclpy.spin_once(self, timeout_sec=1)
+            rate.sleep()
 
         if goal_handle.is_cancel_requested:
             goal_handle.canceled()
@@ -157,11 +157,12 @@ class ControlRobot(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    # Start the ControlRobot node
-    control_robot = ControlRobot()
+    # Start the ControlRobotAction node
+    control_robot = ControlRobotAction()
+    executor = MultiThreadedExecutor()
 
     try:
-        rclpy.spin(control_robot)
+        rclpy.spin(control_robot, executor=executor)
     except KeyboardInterrupt:
         control_robot.get_logger().info('Action server shutting down')
     finally:
