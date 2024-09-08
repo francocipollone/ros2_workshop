@@ -26,5 +26,6 @@ ros-humble-nav2-common
 software-properties-common
 sudo
 tmux
+tree
 wget
 xterm

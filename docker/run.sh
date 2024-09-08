@@ -61,10 +61,6 @@ echo "Running the container..."
 REPOSITORY_FOLDER_PATH="$(cd "$(dirname "$0")"; cd ..; pwd)"
 REPOSITORY_FOLDER_NAME=$( basename $REPOSITORY_FOLDER_PATH )
 
-DSIM_REPOS_PARENT_FOLDER_PATH="$(cd "$(dirname "$0")"; cd ..; pwd)"
-# Location from where the script was executed.
-RUN_LOCATION="$(pwd)"
-
 # Parse arguments
 while [[ "$#" -gt 0 ]]; do
     case $1 in
