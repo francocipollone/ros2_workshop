@@ -1,16 +1,3 @@
-# Copyright 2016 Open Source Robotics Foundation, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 import sys
 
 import rclpy
@@ -27,8 +14,10 @@ class Talker(Node):
         super().__init__('talker')
         self.i = 0
         # Un publisher con tipo de Mensaje string y nombre de topic 'mi_primer_topico'
+        # El tercer parametro es el tamaño de la cola de mensajes que se almacenará.
         self.pub = self.create_publisher(String, 'mi_primer_topico', 10)
         timer_period = 1.0
+        # Crear un timer que llamará a la función timer_callback cada 1 segundo.
         self.tmr = self.create_timer(timer_period, self.timer_callback)
 
     def timer_callback(self):
@@ -50,6 +39,11 @@ def main(args=None):
     node = Talker()
 
     try:
+        # Spin es una función que permite que el nodo siga funcionando:
+        # - Chequeo de eventos
+        # - Ejecución de callbacks debido a topics, servicios, timers, etc.
+        # Este programa se quedara en rclpy.spin(node) hasta que se presione Ctrl+C con
+        # eventuales saltos a los callbacks(timer_callback en este caso).
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass

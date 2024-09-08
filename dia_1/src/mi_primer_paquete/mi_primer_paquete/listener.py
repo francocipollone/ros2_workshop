@@ -1,17 +1,3 @@
-# Copyright 2016 Open Source Robotics Foundation, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import sys
 
 import rclpy
@@ -25,9 +11,12 @@ class Listener(Node):
 
     def __init__(self):
         super().__init__('listener')
+        # Un subscriber con tipo de Mensaje string y nombre de topic 'mi_primer_topico'
+        # Cuando un mensaje es recibido, la función chatter_callback es llamada.
         self.sub = self.create_subscription(String, 'mi_primer_topico', self.chatter_callback, 10)
 
     def chatter_callback(self, msg):
+        # Cuando un mensaje es recibido, esta función solamente imprime el mensaje.
         self.get_logger().info('Escucho: [%s]' % msg.data)
 
 
