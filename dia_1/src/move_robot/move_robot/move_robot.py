@@ -21,7 +21,7 @@ def main(args=None):
 
     try:
         while(rclpy.ok()):
-            # Incrementar la velociidad en 0.01 m/s
+            # Incrementar la velocidad en 0.01 m/s
             vel_msg.linear.x += 0.01
             node.get_logger().info('Velocidad lineal en X: "{0}"'.format(vel_msg.linear.x))
             pub.publish(vel_msg)
