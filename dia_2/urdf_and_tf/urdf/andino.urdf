@@ -1,0 +1,327 @@
+<?xml version="1.0" ?>
+<robot name="andino">
+  <!-- ===================== Material ============================================
+
+  RVIZ material RGBA definition.
+-->
+  <material name="yellow">
+    <color rgba="1 0.95 0 1"/>
+  </material>
+  <material name="blue">
+    <color rgba="0 0 1 1"/>
+  </material>
+  <material name="light_blue">
+    <color rgba="0 0.5 0.8 1"/>
+  </material>
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+  <material name="red">
+    <color rgba="0.8 0.0 0.0 1.0"/>
+  </material>
+  <material name="silver">
+    <color rgba="0.79 0.82 0.93 1"/>
+  </material>
+  <material name="dark_grey">
+    <color rgba="0.3 0.3 0.3 1"/>
+  </material>
+
+  <!-- Base-Footprint -->
+  <!-- base_footprint is a fictitious link(frame) that is on the ground right below base_link origin -->
+  <link name="base_footprint"/>
+  <!-- Joint to connect base_footprint with base_link -->
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_footprint"/>
+    <origin rpy="0 0 0" xyz="0 0 -0.0501"/>
+  </joint>
+  <link name="base_link">
+    <inertial>
+      <mass value="0.8"/>
+      <inertia ixx="0.00042833333333333335" ixy="0.0" ixz="0.0" iyy="0.0025366666666666667" iyz="0.0" izz="0.002961666666666667"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://andino_description/meshes/andino/chassis.stl"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+      <geometry>
+        <box size="0.195 0.08 0.005"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="second_base_link">
+    <inertial>
+      <mass value="0.8"/>
+      <inertia ixx="0.00042833333333333335" ixy="0.0" ixz="0.0" iyy="0.0025366666666666667" iyz="0.0" izz="0.002961666666666667"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0.05"/>
+      <geometry>
+        <mesh filename="package://andino_description/meshes/andino/chassis_top.stl"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+      <geometry>
+        <box size="0.195 0.08 0.005"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- Joint to connect second_story with base_link -->
+  <joint name="second_base_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="second_base_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  <link name="caster_base_link">
+    <inertial>
+      <mass value="0.02"/>
+      <inertia ixx="5.333333333333334e-06" ixy="0.0" ixz="0.0" iyy="5.333333333333334e-06" iyz="0.0" izz="5.333333333333334e-06"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.02"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 -0.02"/>
+      <geometry>
+        <mesh filename="package://andino_description/meshes/andino/caster_base.stl"/>
+      </geometry>
+      <material name="silver"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 -0.02"/>
+      <geometry>
+        <box size="0.04 0.04 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="caster_base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.076 -0.0 0.0045"/>
+    <parent link="base_link"/>
+    <child link="caster_base_link"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="0.01" friction="0.0"/>
+  </joint>
+  <!-- caster hub -->
+  <link name="caster_rotation_link">
+    <inertial>
+      <mass value="0.02"/>
+      <inertia ixx="5.333333333333334e-06" ixy="0.0" ixz="0.0" iyy="5.333333333333334e-06" iyz="0.0" izz="5.333333333333334e-06"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.02"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 -0.02"/>
+      <geometry>
+        <mesh filename="package://andino_description/meshes/andino/caster_wheel_support.stl"/>
+      </geometry>
+      <material name="silver"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 -0.02"/>
+      <geometry>
+        <box size="0.04 0.04 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="caster_rotation_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.077 -0.0 0.0045"/>
+    <parent link="base_link"/>
+    <child link="caster_rotation_link"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="0.01" friction="0.0"/>
+  </joint>
+  <!-- caster wheel -->
+  <link name="caster_wheel_link">
+    <inertial>
+      <mass value="0.5"/>
+      <inertia ixx="3.229166666666667e-05" ixy="0" ixz="0" iyy="3.229166666666667e-05" iyz="0" izz="5.625e-05"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://andino_description/meshes/andino/caster_wheel.stl"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.01" radius="0.015"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="caster_wheel_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.016 0 -0.04"/>
+    <parent link="caster_rotation_link"/>
+    <child link="caster_wheel_link"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+  <link name="right_wheel">
+    <visual>
+      <origin rpy="1.5707963267948966 0 -3.141592653589793" xyz="0.0 0 0"/>
+      <geometry>
+        <mesh filename="package://andino_description/meshes/andino/../components/wheel.stl"/>
+      </geometry>
+      <material name="dark_grey"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.025" radius="0.0331"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.032"/>
+      <inertia ixx="1.0431546666666667e-05" ixy="0" ixz="0" iyy="1.0431546666666667e-05" iyz="0" izz="1.7529759999999997e-05"/>
+      <origin rpy="1.5707963267948966 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+  </link>
+  <joint name="right_wheel_joint" type="continuous">
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin rpy="0 0 0" xyz="0.018500000000000003 -0.0675 -0.017"/>
+    <dynamics damping="0.01" friction="0.0"/>
+  </joint>
+  <link name="left_wheel">
+    <visual>
+      <origin rpy="1.5707963267948966 0 0.0" xyz="0.0 0 0"/>
+      <geometry>
+        <mesh filename="package://andino_description/meshes/andino/../components/wheel.stl"/>
+      </geometry>
+      <material name="dark_grey"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.025" radius="0.0331"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.032"/>
+      <inertia ixx="1.0431546666666667e-05" ixy="0" ixz="0" iyy="1.0431546666666667e-05" iyz="0" izz="1.7529759999999997e-05"/>
+      <origin rpy="1.5707963267948966 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+  </link>
+  <joint name="left_wheel_joint" type="continuous">
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin rpy="0 0 0" xyz="0.018500000000000003 0.0675 -0.017"/>
+    <dynamics damping="0.01" friction="0.0"/>
+  </joint>
+  <link name="right_motor">
+    <visual>
+      <origin rpy="0.0 0 -3.141592653589793" xyz="0.0 0.0 0.0"/>
+      <geometry>
+        <mesh filename="package://andino_description/meshes/andino/motor.stl"/>
+      </geometry>
+      <material name="light_blue"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.07 0.0225 0.0188"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="7.164083333333333e-06" ixy="0.0" ixz="0.0" iyy="4.3778666666666675e-05" iyz="0.0" izz="4.505208333333334e-05"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+  </link>
+  <joint name="right_motor_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_motor"/>
+    <origin rpy="0 3.141592653589793 0" xyz="0.0015000000000000013 -0.037750000000000006 -0.017"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+  </joint>
+  <link name="left_motor">
+    <visual>
+      <origin rpy="0.0 0 0.0" xyz="0.0 0.0 0.0"/>
+      <geometry>
+        <mesh filename="package://andino_description/meshes/andino/motor.stl"/>
+      </geometry>
+      <material name="light_blue"/>
+    </visual>
+    <collision>
+      <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.07 0.0225 0.0188"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="7.164083333333333e-06" ixy="0.0" ixz="0.0" iyy="4.3778666666666675e-05" iyz="0.0" izz="4.505208333333334e-05"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    </inertial>
+  </link>
+  <joint name="left_motor_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_motor"/>
+    <origin rpy="0 -0.0 0" xyz="0.0015000000000000013 0.037750000000000006 -0.017"/>
+    <axis rpy="0 0 0" xyz="0 1 0"/>
+  </joint>
+  <link name="rplidar_laser_link">
+    <visual>
+      <origin rpy="0 0 3.141592653589793" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://andino_description/meshes/sensors/rplidar-a1.stl"/>
+      </geometry>
+      <material name="dark_grey"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.01" radius="0.015"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="6.458333333333333e-06" ixy="0" ixz="0" iyy="6.458333333333333e-06" iyz="0" izz="1.1249999999999999e-05"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </inertial>
+  </link>
+  <joint name="rplidar_laser_joint" type="fixed">
+    <parent link="second_base_link"/>
+    <child link="rplidar_laser_link"/>
+    <origin rpy="0 0 3.141592653589793" xyz="0.05 0.0 0.08"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+  <link name="camera_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://andino_description/meshes/sensors/camera_mount.stl"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.02 0.02 0.02"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="6.666666666666667e-06" ixy="0.0" ixz="0.0" iyy="6.666666666666667e-06" iyz="0.0" izz="6.666666666666667e-06"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </inertial>
+  </link>
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin rpy="0 0 0" xyz="0.085 0.0 0.025"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+</robot>
