@@ -1,3 +1,3 @@
 [submodule "dia_1/colcon_ws/src/andino_gz"]
-	path = dia_1/src/andino_gz
+	path = src/andino_gz
 	url = https://github.com/Ekumen-OS/andino_gz.git
