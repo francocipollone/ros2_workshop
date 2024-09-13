@@ -94,16 +94,17 @@ class ControlRobotAction(Node):
         while self.goal_active_ and rclpy.ok():
             current_pose = self.pose_to_pose2d(self.robot_odom_.pose.pose)
 
-            # Calcular la velocidad a aplicar al robot para alcanzar el objetivo
-            velocity = self.proportional_controller_.compute_velocity_towards_goal(
-                current_pose, self.goal_pose_)
-            self.velocity_pub_.publish(velocity)
+            # TODO: Calcular la velocidad a aplicar al robot para alcanzar el objetivo
+            #       - Ayuda: Hay un metodo en `ProportionalController` que puede ser útil.
 
-            # Calcular la distancia al objetivo para publicar en el feedback
-            distance_to_goal = self.compute_euclidean_distance_to_goal(
-                current_pose, self.goal_pose_)
-            feedback_msg.distance_to_goal = distance_to_goal
-            feedback_msg.current_pose = current_pose
+            # TODO: Publicar la velocidad calculada en el tópico `/cmd_vel`
+
+            # TODO: Calcular la distancia al objetivo para publicar en el feedback
+            # - Ayuda: Hay un método en esta clase que puede ser útil.
+
+            # TODO: Llenar el mensaje de feedback con la distancia al objetivo y la pose actual
+
+            # TODO: Publicar el mensaje de feedback
             goal_handle.publish_feedback(feedback_msg)
 
             # Once the goal is achieved, break the loop

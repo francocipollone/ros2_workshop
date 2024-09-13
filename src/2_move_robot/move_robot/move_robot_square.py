@@ -15,34 +15,12 @@ def draw_square(node, pub, largo_lado_cuadrado, velocidad_lineal,
 
 
 def move_forward(node, pub, rate, distancia_lineal, velocidad_lineal):
-    vel_msg = Twist()
-    vel_msg.linear.x = velocidad_lineal
-    vel_msg.linear.y = 0.0
-    vel_msg.linear.z = 0.0
-    vel_msg.angular.x = 0.0
-    vel_msg.angular.y = 0.0
-    vel_msg.angular.z = 0.0
-
     node.get_logger().info(
         'Moviendo hacia adelante una distancia de {0}'.format(
             distancia_lineal))
 
-    distancia_recorrida = 0.0
-    tiempo_inicio = node.get_clock().now()
-    while (rclpy.ok() and distancia_recorrida < distancia_lineal):
-        pub.publish(vel_msg)
-        rclpy.spin_once(node)
-        rate.sleep()
-        # La distancia se estima a lazo abierto a partir de la velocidad y el
-        # tiempo trascurrido (d(t) = v*t).
-        tiempo_fin = node.get_clock().now()
-        distancia_recorrida = velocidad_lineal * (
-            tiempo_fin - tiempo_inicio).nanoseconds / 1e9
-
-    # Detener el robot
-    node.get_logger().info('Deteniendo el robot')
-    vel_msg.linear.x = 0.0
-    pub.publish(vel_msg)
+    # TODO: Implementar el movimiento hacia adelante. Inspirarse en el
+    # movimiento rotacional. (Metodo rotate)
 
 
 def rotate(node, pub, rate, distancia_angular, velocidad_angular):

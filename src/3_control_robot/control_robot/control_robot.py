@@ -17,18 +17,17 @@ class ControlRobot(Node):
 
     def __init__(self, goal_pose: Pose2D):
         super().__init__('control_robot')
-        self.goal_pose_ = goal_pose
-
-        # Publisher para el tópico /cmd_vel
-        self.velocity_pub_ = self.create_publisher(Twist, '/cmd_vel', 10)
-
-        # Subscriber para el tópico /odom
-        self.odometry_sub_ = self.create_subscription(Odometry, '/odom',
-                                                      self.odometry_callback,
-                                                      10)
-
         # Proportional controller instance
         self.proportional_controller_ = ProportionalController()
+        self.goal_pose_ = goal_pose
+
+        # TODO: Incializar el publicador y el subscriptor al tópico /cmd_vel y /odom correspondientemente.
+
+
+
+
+
+
 
     def odometry_callback(self, msg: Odometry):
         """
@@ -39,10 +38,12 @@ class ControlRobot(Node):
         self.get_logger().info(
             f"Posicion actual: ({current_pose.x}; {current_pose.y})")
 
-        # Computa la velocidad a aplicar al robot para alcanzar el objetivo utilizando un control proporcional.
-        velocity = self.proportional_controller_.compute_velocity_towards_goal(
-            current_pose, self.goal_pose_)
-        self.velocity_pub_.publish(velocity)
+        # TODO: Computar la velocidad a aplicar al robot para alcanzar el objetivo utilizando un control proporcional.
+
+        # TODO: Publicar la velocidad calculada en el tópico `/cmd_vel`.
+
+
+
 
     def pose_to_pose2d(self, pose: Pose) -> Pose2D:
         """
@@ -63,6 +64,9 @@ class ControlRobot(Node):
 
 
 def main(argv=sys.argv[1:]):
+    # Ejemplo de uso:
+    # ros2 run control_robot control_robot -x 2.0 -y 2.0
+    #
     # Parseo de argumentos
     non_ros_args = rclpy.utilities.remove_ros_args(argv)
     parser = argparse.ArgumentParser(
