@@ -32,6 +32,7 @@ setup(
     entry_points={
         'console_scripts': [
             'move_robot = move_robot.move_robot:main',
+            'move_robot_listener = move_robot.move_robot_listener:main',
             'move_robot_square = move_robot.move_robot_square:main',
         ],
     },
